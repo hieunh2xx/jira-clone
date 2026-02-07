@@ -1,0 +1,37 @@
+@import "tw-animate-css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure toast notifications appear above all modals and forms */
+[data-sonner-toaster] {
+  z-index: 9999 !important;
+  position: fixed !important;
+  pointer-events: none !important;
+}
+
+[data-sonner-toast] {
+  z-index: 9999 !important;
+  position: relative !important;
+  pointer-events: auto !important;
+}
+
+/* Override any z-index for sonner toast container */
+.sonner-toaster {
+  z-index: 9999 !important;
+  position: fixed !important;
+  pointer-events: none !important;
+}
+
+/* Ensure toast is visible and not hidden */
+[data-sonner-toast] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Prevent any element from hiding toasts */
+body > [data-sonner-toaster] {
+  z-index: 9999 !important;
+}

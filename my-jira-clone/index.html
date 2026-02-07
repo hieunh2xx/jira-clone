@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Prevent caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>QL công việc</title>
+    <script>
+      // Force clear cache on load if version changed
+      // Run asynchronously to not block app loading
+      (function() {
+        // Defer execution to not block initial render
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initVersionCheck);
+        } else {
+          // DOM already loaded, run immediately but async
+          setTimeout(initVersionCheck, 0);
+        }
+        
+        function initVersionCheck() {
+          const CACHE_VERSION_KEY = 'app_cache_version';
+          const checkVersion = async () => {
+            try {
+              const response = await fetch(`/version.json?t=${Date.now()}`, {
+                cache: 'no-store',
+                headers: { 'Cache-Control': 'no-cache' }
+              });
+              if (response.ok) {
+                const data = await response.json();
+                const currentVersion = data.version || data.buildTime || 'unknown';
+                const storedVersion = sessionStorage.getItem(CACHE_VERSION_KEY);
+                
+                if (storedVersion && storedVersion !== currentVersion) {
+                  // Version changed, clear all caches and reload
+                  console.log('Version changed, clearing cache and reloading...');
+                  sessionStorage.clear();
+                  localStorage.clear();
+                  // Clear service worker cache if exists
+                  if ('caches' in window) {
+                    caches.keys().then(names => {
+                      names.forEach(name => caches.delete(name));
+                    });
+                  }
+                  // Force reload
+                  window.location.reload();
+                } else {
+                  sessionStorage.setItem(CACHE_VERSION_KEY, currentVersion);
+                }
+              }
+            } catch (e) {
+              // Silently fail - don't block app if version check fails
+              console.debug('Version check failed (non-critical):', e);
+            }
+          };
+          checkVersion();
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

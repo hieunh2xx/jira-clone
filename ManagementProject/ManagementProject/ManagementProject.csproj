@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.27.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.47.0" />
+    <PackageReference Include="Azure.Identity" Version="1.11.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="EPPlus" Version="7.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="web.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Tự động cấu hình IIS sau khi publish -->
+  <Target Name="ConfigureIISAfterPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <PublishScriptPath>$(MSBuildProjectDirectory)\scripts\ConfigureIISAfterPublish.ps1</PublishScriptPath>
+      <IISSiteName Condition="'$(IISSiteName)' == ''">ManagementProject</IISSiteName>
+      <IISAppPoolName Condition="'$(IISAppPoolName)' == ''">ManagementProject</IISAppPoolName>
+      <PublishUrl Condition="'$(PublishUrl)' == ''">C:\inetpub\wwwroot\ManagementProject</PublishUrl>
+    </PropertyGroup>
+    
+    <Message Text="========================================" Importance="high" />
+    <Message Text="Đang cấu hình IIS tự động sau khi publish..." Importance="high" />
+    <Message Text="Site Name: $(IISSiteName)" Importance="high" />
+    <Message Text="App Pool: $(IISAppPoolName)" Importance="high" />
+    <Message Text="Publish Path: $(PublishUrl)" Importance="high" />
+    <Message Text="========================================" Importance="high" />
+    
+    <Exec Condition="Exists('$(PublishScriptPath)')" 
+          Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(PublishScriptPath)&quot; -SiteName &quot;$(IISSiteName)&quot; -AppPoolName &quot;$(IISAppPoolName)&quot; -PublishPath &quot;$(PublishUrl)&quot;"
+          ContinueOnError="true"
+          IgnoreExitCode="true" />
+    
+    <Warning Condition="!Exists('$(PublishScriptPath)')" 
+             Text="Script cấu hình IIS không tìm thấy tại: $(PublishScriptPath)" />
+  </Target>
+
+</Project>
